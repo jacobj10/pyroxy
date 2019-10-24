@@ -42,25 +42,25 @@ class ReverseProxyHandler(BaseHTTPRequestHandler):
                 content_length = int(cl_str)
         return content_length
 
+    def _send_generic_failure(self):
+        self.send_response(500)
+        self.end_headers()
+        self.wfile.write(b'Error forwarding request')
+
     def _forward_request(self):
         """
         Forward the current request to the appropriate target, if applicable.
         """
         headers = self._get_headers_as_dict()
         if 'Host' not in headers:
-            # This should never happen, but account for it nonetheless.
-            self.send_response(500)
-            self.end_headers()
+            self._send_generic_failure()
             return
         else:
             host = headers['Host'].split(':')[0]
             print("Proxying request for: {}".format(host))
 
-            # Again this should never happen, but redundancy is key.
             if host not in HOSTS:
-                self.send_response(500)
-                self.end_headers()
-                self.wfile.write(b'Error forwarding request')
+                self._send_generic_failure()
                 return
             proxied_host = HOSTS[host]
 
@@ -75,9 +75,8 @@ class ReverseProxyHandler(BaseHTTPRequestHandler):
             try:
                 proxy_connection.request(self.command, self.path, body=ibody, headers=headers)
             except Exception as e:
-                print("Error occured: " + str(e))
-                self.send_response(500)
-                self.end_headers()
+                print("Error occured: " + str(e)) # This one is worth logging.
+                self._send_generic_failure()
                 return
             response = proxy_connection.getresponse()
             body = response.read()
