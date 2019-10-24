@@ -1,0 +1,17 @@
+# Host and Port to run proxy on.
+port: 8080
+address: 0.0.0.0
+
+# Mapping of hosts to the proxy target.
+mapping:
+  - host: foo.localhost
+    target: localhost:5000
+
+  - host: bar.localhost
+    target: localhost:3000
+
+# In this mapping (for demonstration), your /etc/hosts file should contain:
+# 127.0.0.1 foo.localhost
+# 127.0.0.1 bar.localhost
+#
+# And webservers should be running locally on ports 3000 and 5000.
