@@ -2,6 +2,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from http.client import HTTPConnection
 
 import yaml
+import socket
 
 # Config values to be overwritten by YAML input.
 PORT = 8080
@@ -24,6 +25,10 @@ CONTENT_LENGTH = 'Content-Length'
 SUPPLANTED_HEADERS = ['Server', 'Date']
 
 class ReverseProxyHandler(BaseHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.protocol_version = 'HTTP/1.1'
+
     def _get_headers_as_dict(self):
         """
         Convert the library specific HTTP header representation into a
@@ -63,14 +68,10 @@ class ReverseProxyHandler(BaseHTTPRequestHandler):
                 self._send_generic_failure()
                 return
             proxied_host = HOSTS[host]
-
             headers.pop('Host')
 
             ibody = self.rfile.read(self._get_content_length(headers))
             proxy_connection = HTTPConnection(proxied_host)
-            # Force HTTP/1.0 to avoid compatibility issues with handler.
-            proxy_connection._http_vsn = 10
-            proxy_connection._http_vsn_str = 'HTTP/1.0'
 
             try:
                 proxy_connection.request(self.command, self.path, body=ibody, headers=headers)
@@ -90,15 +91,18 @@ class ReverseProxyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self._forward_request()
+
     def do_PUT(self):
         self._forward_request()
+
     def do_POST(self):
         self._forward_request()
+
     def do_OPTIONS(self):
         self._forward_request()
+
     def do_HEAD(self):
         self._forward_request()
-
 
 if __name__ == '__main__':
     populate_constants()

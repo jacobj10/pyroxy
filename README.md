@@ -19,6 +19,7 @@ To see a basic example, first add the following to your `/etc/hosts` file.
 127.0.0.1 foo.localhost
 127.0.0.1 bar.localhost
 ```
+Then run the dockerfile with: `docker build -t pyroxy . && docker run -p8080:8080 -it pyroxy:latest`
 
 Then, with the manifest file unchanged run: `./run_example.sh` and navigate to:
 
