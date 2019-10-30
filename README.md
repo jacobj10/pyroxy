@@ -21,10 +21,11 @@ To see a basic example, first add the following to your `/etc/hosts` file.
 ```
 Then run the dockerfile with: `docker build -t pyroxy . && docker run -p8080:8080 -it pyroxy:latest`
 
-Then, with the manifest file unchanged run: `./run_example.sh` and navigate to:
+Test out the reverse proxy:
 
-`http://foo.localhost/`
+`curl foo.localhost:8080`
+`curl bar.localhost:8080`
 
-and
 
-`http://bar.localhost/`
+### Known Limitations.
+Currently, there are some issues with caching when viewing in a browser.
